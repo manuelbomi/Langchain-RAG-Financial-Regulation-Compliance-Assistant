@@ -1,9 +1,8 @@
 # Policy & Regulatory Research Copilot: A Self-Hosted LangChain RAG System for Financial Compliance Teams
 
-> **Fictional demo, synthetic data only.** This project is a portfolio
-> engineering demo. Every scenario, policy document, and data point in it
+> **Fictional demo, synthetic data only.**  Every scenario, policy document, and data point in it
 > references a wholly invented company, **"Northbridge Financial Group"**
-> — invented solely to make this demo concrete. It is not a real bank, and
+> — invented solely to make this demo representative of true live day-to-day experiences. Northbridge is not a real bank, and
 > nothing in this repository represents any real institution's actual
 > policies, systems, or data. No real employer, past or present, is
 > referenced anywhere in this codebase.
