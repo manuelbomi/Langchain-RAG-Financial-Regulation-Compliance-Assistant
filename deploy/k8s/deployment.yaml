@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compliance-copilot
+  labels:
+    app: compliance-copilot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: compliance-copilot
+  template:
+    metadata:
+      labels:
+        app: compliance-copilot
+    spec:
+      # Runs as the non-root `appuser` baked into the image (see
+      # Dockerfile); this is a belt-and-suspenders pod-level enforcement
+      # of that same constraint.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: compliance-copilot
+          image: compliance-copilot:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: compliance-copilot-config
+            - secretRef:
+                name: compliance-copilot-secrets
+                optional: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false # writes local FAISS index + audit log under /app
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          # Liveness: is the process alive at all? Deliberately cheap and
+          # independent of index state (see api/main.py /healthz).
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          # Readiness: has the retrieval index finished building? A pod
+          # that is alive but not ready must not receive traffic.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: index-storage
+              mountPath: /app/.index
+            - name: audit-storage
+              mountPath: /app/.audit
+      volumes:
+        # emptyDir is sufficient for a demo (index rebuilds from the
+        # corpus on pod start); a production deployment with a large
+        # corpus or audit-retention requirements would back these with a
+        # PersistentVolumeClaim instead.
+        - name: index-storage
+          emptyDir: {}
+        - name: audit-storage
+          emptyDir: {}

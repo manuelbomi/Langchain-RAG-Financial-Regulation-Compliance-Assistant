@@ -1,0 +1,20 @@
+# Non-secret configuration. Secrets (API keys) live in secret.yaml.example
+# instead -- never put a real key in a ConfigMap.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compliance-copilot-config
+  labels:
+    app: compliance-copilot
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+  LLM_PROVIDER: "mock"
+  CORPUS_DIR: "/app/data/sample_policies"
+  VECTOR_INDEX_DIR: "/app/.index/faiss"
+  RETRIEVAL_TOP_K: "4"
+  HYBRID_DENSE_WEIGHT: "0.6"
+  HYBRID_SPARSE_WEIGHT: "0.4"
+  SIMILARITY_REFUSAL_THRESHOLD: "0.22"
+  ENABLE_PII_REDACTION: "true"
+  OTEL_TRACING_ENABLED: "true"

@@ -1,0 +1,32 @@
+# One-command local dev spin-up: `docker compose up --build`.
+# No external services required -- FAISS and MockLLM are both in-process,
+# so this is a single-container stack by design (see README "Getting
+# Started"). A Postgres service for the documented pgvector swap-in path
+# would be added here if that adapter is implemented (see README "Key
+# Design Decisions").
+
+services:
+  compliance-copilot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: compliance-copilot:local
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
+      LOG_LEVEL: INFO
+      LLM_PROVIDER: mock
+      RETRIEVAL_TOP_K: "4"
+      SIMILARITY_REFUSAL_THRESHOLD: "0.22"
+      OTEL_TRACING_ENABLED: "true"
+    volumes:
+      # Mount the sample corpus read-write so `POST /reindex` picks up
+      # local edits without rebuilding the image during development.
+      - ./data/sample_policies:/app/data/sample_policies:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

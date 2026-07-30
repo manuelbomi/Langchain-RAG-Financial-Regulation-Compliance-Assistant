@@ -1,0 +1,42 @@
+[project]
+name = "compliance-copilot"
+version = "0.1.0"
+description = "Policy & Regulatory Research Copilot: a self-hosted LangChain RAG system for financial compliance teams (portfolio demo, synthetic data only)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# E501: line length is enforced by formatting, not a lint blocker.
+# B008: FastAPI's dependency-injection pattern (`= Depends(...)` as a
+# parameter default) is the documented, idiomatic usage -- not the
+# mutable-default-argument foot-gun this rule normally guards against.
+ignore = ["E501", "B008"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+explicit_package_bases = true
+ignore_missing_imports = true
+disallow_untyped_defs = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+exclude = ["tests/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
