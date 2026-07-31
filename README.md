@@ -251,7 +251,7 @@ docker compose up --build
 curl http://localhost:8000/healthz
 ```
 
-## Production Deployment
+## Production Deploymentt
 
 - **Docker**: `Dockerfile` is a pinned, multi-stage build producing a
   minimal non-root runtime image (see `docker-compose.yml` for one-command
